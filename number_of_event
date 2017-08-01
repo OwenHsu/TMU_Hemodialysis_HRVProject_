@@ -1,0 +1,24 @@
+# install the package and library
+install.packages(readr)
+library(readr)
+
+# At beginning, I would like to import the CSV file as dataframe
+# Meanwhile, because the PNO was record by different digits number, so I need to map the PNO from different from different tables
+# Datafrmae "muscle_pno_digit_2" means the PNO was record as 2 digits. For example PNO=1,2,3...etc
+# Dataframe "muscle_pno_digit_8" represented PNO was record as 8 digits. For example PNO=00264686...
+
+pno_digit_8<-read_csv("HDHRV/de_muscle_spasm.csv")
+pno_digit_2<-read_csv("HDHRV/musle_spasm.csv")
+pno_merge<-merge.data.frame(pno_digit_8, pno_digit_2, by="DATE", all = TRUE)
+
+# Idealy, each patient should have around 48 events, but some patient didn't
+# I would like to count how many event for each patient and save the result in "number_of_event.csv" file
+
+num_folder<-length(list.dirs(path = 'HDHRV/1_vital_sign', recursive = FALSE))
+df<-data.frame()
+for (i in 1:num_folder){
+  path_file<-paste0('HDHRV/1_vital_sign',"/",i)
+  num_event<-length(list.files(path = path_file))
+  df<-rbind(df,data.frame(PNO=i, Number_event=num_event))
+}
+write.csv(df,'number_of_event.csv')
